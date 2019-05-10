@@ -1,11 +1,11 @@
 #include "LabelButton.h"
 #include<iostream>
-#include"loft.h"
+#include"lift.h"
 #include"dispatcher.h"
-#include"LoftThread.h"
+#include"LiftThread.h"
 
-InButton::InButton(QPushButton* button,int floor,int unit, loft* loft):
-    button_(button),floor_(floor),unit_(unit),loft_(loft)
+InButton::InButton(QPushButton* button,int floor,int unit, lift* lift):
+    button_(button),floor_(floor),unit_(unit),lift_(lift)
 {
 	connect(button_, SIGNAL(clicked(bool)), this, SLOT(btn_clicked(bool)));
 }
@@ -16,7 +16,7 @@ void InButton::btn_clicked(bool checked)
 	//will this func still be called if the button was unchecked?
 	if (checked)
 	{
-		loft_->clicked[floor_] = true;
+		lift_->clicked[floor_] = true;
 	}
 	else
 	{
@@ -35,15 +35,15 @@ void OutButton::btn_pressed()
 	//here is a problem
 	//will this func still be called if the button was unchecked?
 	auto instance_ = dispatcher::getInstance();
-	if (instance_->loft_threads_[unit_ - 1]->loft_->floor == floor_ &&
-		instance_->loft_threads_[unit_ - 1]->mayOpen() &&
-		instance_->loft_threads_[unit_ - 1]->status == !isUp_)
+	if (instance_->lift_threads_[unit_ - 1]->lift_->floor == floor_ &&
+		instance_->lift_threads_[unit_ - 1]->mayOpen() &&
+		instance_->lift_threads_[unit_ - 1]->status == !isUp_)
 	{
 		//debug
-		if (instance_->loft_threads_[unit_ - 1]->status != 0 && instance_->loft_threads_[unit_ - 1]->status != 1)
+		if (instance_->lift_threads_[unit_ - 1]->status != 0 && instance_->lift_threads_[unit_ - 1]->status != 1)
 			std::cout << "label_button_btn_clicked_assert" << std::endl;
 		asOpenDoor_ = true;
-		instance_->loft_threads_[unit_ - 1]->stayOpen++;
+		instance_->lift_threads_[unit_ - 1]->stayOpen++;
 	}
 	else
 	{
@@ -64,20 +64,20 @@ void OutButton::btn_released()
 		asOpenDoor_ = false;
 		auto instance_ = dispatcher::getInstance();
 		//debug
-		if (instance_->loft_threads_[unit_ - 1]->status != 0 && instance_->loft_threads_[unit_ - 1]->status != 1)
+		if (instance_->lift_threads_[unit_ - 1]->status != 0 && instance_->lift_threads_[unit_ - 1]->status != 1)
 			std::cout << "label_button_btn_released_assert" << std::endl;
-		if (instance_->loft_threads_[unit_ - 1]->loft_->floor == floor_ &&
-			instance_->loft_threads_[unit_ - 1]->stayOpen&&
-			instance_->loft_threads_[unit_ - 1]->status == !isUp_)
+		if (instance_->lift_threads_[unit_ - 1]->lift_->floor == floor_ &&
+			instance_->lift_threads_[unit_ - 1]->stayOpen&&
+			instance_->lift_threads_[unit_ - 1]->status == !isUp_)
 		{
 			this->button_->setChecked(false);
-			instance_->loft_threads_[unit_ - 1]->stayOpen--;
+			instance_->lift_threads_[unit_ - 1]->stayOpen--;
 		}
 	}
 }
 
-OpenButton::OpenButton(QPushButton* button, int unit, loft* loft):
-	button_(button), unit_(unit), loft_(loft)
+OpenButton::OpenButton(QPushButton* button, int unit, lift* lift):
+	button_(button), unit_(unit), lift_(lift)
 {
 	connect(button_, SIGNAL(pressed()), this, SLOT(btn_pressed()));
 	connect(button_, SIGNAL(released()), this, SLOT(btn_released()));
@@ -86,10 +86,10 @@ OpenButton::OpenButton(QPushButton* button, int unit, loft* loft):
 void OpenButton::btn_pressed()
 {
 	auto instance_ = dispatcher::getInstance();
-	if (instance_->loft_threads_[unit_ - 1]->mayOpen())
+	if (instance_->lift_threads_[unit_ - 1]->mayOpen())
 	{
 		effective_ = true;
-		instance_->loft_threads_[unit_ - 1]->stayOpen++;
+		instance_->lift_threads_[unit_ - 1]->stayOpen++;
 	}
 	else
 	{
@@ -105,10 +105,10 @@ void OpenButton::btn_released()
 		effective_ = false;
 		auto instance_ = dispatcher::getInstance();
 		//debug
-		if (instance_->loft_threads_[unit_ - 1]->status != 0 && instance_->loft_threads_[unit_ - 1]->status != 1)
+		if (instance_->lift_threads_[unit_ - 1]->status != 0 && instance_->lift_threads_[unit_ - 1]->status != 1)
 			std::cout << "label_button_btn_released_assert" << std::endl;
 		//equivalent out btn 
-		instance_->loft_threads_[unit_ - 1]->stayOpen--;
+		instance_->lift_threads_[unit_ - 1]->stayOpen--;
 	}
 	button_->setChecked(false);
 }

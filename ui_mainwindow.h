@@ -14,6 +14,7 @@
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QHeaderView>
+#include <QtWidgets/QLCDNumber>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
@@ -30,6 +31,9 @@ public:
     QPushButton *down;
     QPushButton *close;
     QPushButton *open;
+    QLCDNumber *indicator;
+    QPushButton *up_arrow;
+    QPushButton *pushButton_2;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -70,13 +74,25 @@ public:
         close->setFlat(true);
         open = new QPushButton(centralWidget);
         open->setObjectName(QStringLiteral("open"));
-        open->setGeometry(QRect(350, 530, 93, 28));
+        open->setGeometry(QRect(400, 490, 93, 28));
         QIcon icon3;
         icon3.addFile(QStringLiteral("open.png"), QSize(), QIcon::Normal, QIcon::Off);
         open->setIcon(icon3);
         open->setIconSize(QSize(40, 40));
         open->setAutoDefault(false);
         open->setFlat(true);
+        indicator = new QLCDNumber(centralWidget);
+        indicator->setObjectName(QStringLiteral("indicator"));
+        indicator->setGeometry(QRect(290, 130, 161, 81));
+        indicator->setLineWidth(5);
+        indicator->setDigitCount(1);
+        indicator->setProperty("intValue", QVariant(1));
+        up_arrow = new QPushButton(centralWidget);
+        up_arrow->setObjectName(QStringLiteral("up_arrow"));
+        up_arrow->setGeometry(QRect(210, 340, 93, 28));
+        pushButton_2 = new QPushButton(centralWidget);
+        pushButton_2->setObjectName(QStringLiteral("pushButton_2"));
+        pushButton_2->setGeometry(QRect(170, 390, 93, 28));
         MainWindow->setCentralWidget(centralWidget);
 
         retranslateUi(MainWindow);
@@ -92,6 +108,8 @@ public:
         down->setText(QString());
         close->setText(QString());
         open->setText(QString());
+        up_arrow->setText(QApplication::translate("MainWindow", "PushButton", nullptr));
+        pushButton_2->setText(QApplication::translate("MainWindow", "PushButton", nullptr));
     } // retranslateUi
 
 };

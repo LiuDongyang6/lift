@@ -1,17 +1,17 @@
 #ifndef LOFT_THREAD_H
 #define LOFT_THREAD_H
 #include"qthread.h"
-#include"loft.h"
+#include"lift.h"
 #include"qmutex.h"
-class LoftThread :public QThread
+class LiftThread :public QThread
 {
 	Q_OBJECT
 public:
-	LoftThread(loft* lft, QObject *parent = NULL) :
-		loft_(lft), QThread(parent) {}
-	~LoftThread() { delete(loft_); }
+	LiftThread(lift* lft, QObject *parent = NULL) :
+		lift_(lft), QThread(parent) {}
+	~LiftThread() { delete(lift_); }
 	void run();
-	loft* loft_;
+	lift* lift_;
 	//1 down;0 up;-1 idle;2 break after open & up;3 break after open & down
 	int status = -1;
 	QMutex mutex;
@@ -19,6 +19,7 @@ public:
 	//开关按钮松开后为false
 	volatile int stayOpen = 0;
 	bool mayOpen() { return mayOpen_; }
+	bool stop_ = false;
 signals:
 	void openDoor(int floor, bool isUp);
 	void updatePos(int unit, int floor);

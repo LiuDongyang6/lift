@@ -6,9 +6,11 @@
 #include<list>
 class LabelButton;
 class QLabel;
-class LoftThread;
+class LiftThread;
 class QProgressBar;
 class OpenButton;
+class QLCDNumber;
+class QPushButton;
 
 class dispatcher: public QObject
 {
@@ -16,11 +18,14 @@ class dispatcher: public QObject
 public:
 	static dispatcher* getInstance();
 	static std::vector<std::vector<LabelButton*>> LBs;
-	static std::vector<double> loft_x;
-	static std::vector<double> loft_y;
-	static std::vector<LoftThread*> loft_threads_;
+	static std::vector<double> lift_x;
+	static std::vector<double> lift_y;
+	static std::vector<LiftThread*> lift_threads_;
 	static std::vector<QProgressBar*> bars_;
 	static std::vector<OpenButton*> opens_;
+	static std::vector<QLCDNumber*> indicators_;
+	//0up,1down
+	static std::vector<QPushButton*> arrows_[2];
 	std::list<int> waiting[2];
 	QMutex mutex[2];
 	QMutex idle_mutex;

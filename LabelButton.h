@@ -3,7 +3,7 @@
 #include"QPushButton.h"
 #include"QLabel.h"
 
-class loft;
+class lift;
 
 class OutButton:public QObject
 {
@@ -29,12 +29,12 @@ class InButton :public QObject
 {
 	Q_OBJECT
 public:
-	InButton(QPushButton* button, int floor, int unit, loft* loft);
+	InButton(QPushButton* button, int floor, int unit, lift* lift);
 	virtual ~InButton() { delete(button_); }
 	QPushButton* button_;
 	int floor_;
 	int unit_;
-	loft* loft_;
+	lift* lift_;
 signals:
 	void new_request(int floor, int unit);
 private slots:
@@ -46,11 +46,11 @@ class OpenButton :public QObject
 {
 	Q_OBJECT
 public:
-	OpenButton(QPushButton* button, int unit, loft* loft);
+	OpenButton(QPushButton* button, int unit, lift* lift);
 	virtual ~OpenButton() { delete(button_); }
 	QPushButton* button_;
 	int unit_;
-	loft* loft_;
+	lift* lift_;
 private slots:
 	void btn_pressed();
 	void btn_released();

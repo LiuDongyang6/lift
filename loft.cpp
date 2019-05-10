@@ -1,11 +1,11 @@
-#include "loft.h"
+#include "lift.h"
 
-void loft::new_click(int floor)
+void lift::new_click(int floor)
 {
     clicked[floor-1] = true;
 }
 
-bool loft::noInnerClick(int low,int high)
+bool lift::noInnerClick(int low,int high)
 {
 	bool b = true;
 	for (int i = low; i != high; ++i)
@@ -18,7 +18,7 @@ bool loft::noInnerClick(int low,int high)
 	}
 	return b;
 }
-bool loft::stopOrNot(int floor)
+bool lift::stopOrNot(int floor)
 {
     if(clicked[floor])
     {

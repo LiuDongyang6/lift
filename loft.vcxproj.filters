@@ -63,13 +63,13 @@
     <QtMoc Include="dispatcher.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="loft.h">
-      <Filter>Header Files</Filter>
-    </QtMoc>
     <QtMoc Include="mainwindow.h">
       <Filter>Header Files</Filter>
     </QtMoc>
-    <QtMoc Include="LoftThread.h">
+    <QtMoc Include="lift.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="LiftThread.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

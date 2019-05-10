@@ -1,34 +1,34 @@
-#include"LoftThread.h"
+#include"LiftThread.h"
 #include"dispatcher.h"
 #include"qlabel.h"
 #include"qprogressbar.h"
-void LoftThread::run()
+void LiftThread::run()
 {
 	auto instance_ = dispatcher::getInstance();
-	while (true)
+	while (!stop_)
 	{
 		mutex.lock();
-		if (!instance_->idle[loft_->unit - 1])
+		if (!instance_->idle[lift_->unit - 1])
 		{
 			mayOpen_ = false;
 			//不闲
-			if (loft_->picking)
+			if (lift_->picking)
 			{
-				if (loft_->floor == loft_->target)
+				if (lift_->floor == lift_->target)
 				{
 					//door open
 					DoorProcess();
 					//等待直到门关
-					loft_->picking = false;
+					lift_->picking = false;
 					status += 2;
 				}
-				else if (loft_->floor > loft_->target)
+				else if (lift_->floor > lift_->target)
 				{
-					loft_->floor--;
+					lift_->floor--;
 				}
-				else if (loft_->floor < loft_->target)
+				else if (lift_->floor < lift_->target)
 				{
-					loft_->floor++;
+					lift_->floor++;
 				}
 			}
 			//unpicking & have inner clicked
@@ -45,17 +45,17 @@ void LoftThread::run()
 					instance_->mutex[status].lock();
 					for (auto it = instance_->waiting[status].begin(); it != instance_->waiting[status].end(); ++it)
 					{
-						if (*it == loft_->floor)
+						if (*it == lift_->floor)
 						{
 							b = true;//可以开门拉外边的人
 							break;
 						}
 					}
 					instance_->mutex[status].unlock();
-					if (loft_->stopOrNot(loft_->floor))
+					if (lift_->stopOrNot(lift_->floor))
 					{
 						b = true;
-						emit cancelInner(loft_->unit, loft_->floor);
+						emit cancelInner(lift_->unit, lift_->floor);
 					}
 					if (b)
 					{
@@ -66,51 +66,51 @@ void LoftThread::run()
 					}
 					else
 					{
-						loft_->floor += status == 0 ? 1 : -1;
+						lift_->floor += status == 0 ? 1 : -1;
 					}
 					break;
 				}
 				case 2:
 				case 3:
 				{
-					int low = loft_->floor - 1;
+					int low = lift_->floor - 1;
 					int high = 20;
 					if (status == 3)
 					{
-						high = loft_->floor;
+						high = lift_->floor;
 						low = 0;
 					}
-					if (loft_->noInnerClick(low, high))
+					if (lift_->noInnerClick(low, high))
 					{
-						if (loft_->noInnerClick(0, 20))
+						if (lift_->noInnerClick(0, 20))
 						{
 							if (!instance_->waiting[status % 2].empty())
 							{
 								status = status % 2;
-								loft_->target = instance_->waiting[status].front();
-								loft_->picking = true;
+								lift_->target = instance_->waiting[status].front();
+								lift_->picking = true;
 							}
 							else if (!instance_->waiting[1 - status % 2].empty())
 							{
 								status = 1 - status % 2;
-								loft_->target = instance_->waiting[status].front();
-								loft_->picking = true;
+								lift_->target = instance_->waiting[status].front();
+								lift_->picking = true;
 							}
 							else
 							{
 								status = -1;
 								instance_->idle_mutex.lock();
-								instance_->idle[loft_->unit - 1] = true;
+								instance_->idle[lift_->unit - 1] = true;
 								instance_->idle_mutex.unlock();
 								mayOpen_ = true;
 							}
 						}
-						else//if (loft_->noInnerClick(0, 20))
+						else//if (lift_->noInnerClick(0, 20))
 						{
 							status = 1 - status % 2;
 						}
 					}
-					else//if (loft_->noInnerClick(low, high))
+					else//if (lift_->noInnerClick(low, high))
 					{
 						status -= 2;
 					}
@@ -127,24 +127,24 @@ void LoftThread::run()
 		{
 			if (stayOpen == true)
 			{
-				instance_->idle[loft_->unit - 1] = false;
+				instance_->idle[lift_->unit - 1] = false;
 				DoorProcess();
-				instance_->idle[loft_->unit - 1] = true;
+				instance_->idle[lift_->unit - 1] = true;
 			}
 			int dis = 1000;
 			int nearest = -1;
 			for (int i = 0; i != 20; ++i)
 			{
-				if (loft_->clicked[i] && std::abs(i + 1 - loft_->floor) < dis)
+				if (lift_->clicked[i] && std::abs(i + 1 - lift_->floor) < dis)
 				{
 					nearest = i;
-					dis = std::abs(i + 1 - loft_->floor);
+					dis = std::abs(i + 1 - lift_->floor);
 				}
 			}
 			if (nearest != -1)
 			{
-				instance_->idle[loft_->unit - 1] = false;
-				if (nearest + 1 >= loft_->floor)
+				instance_->idle[lift_->unit - 1] = false;
+				if (nearest + 1 >= lift_->floor)
 				{
 					status = 0;
 				}
@@ -155,21 +155,21 @@ void LoftThread::run()
 			}
 		}
 		mutex.unlock();
-		//instance_->loft_labels_[loft_->unit-1]->setGeometry(instance_->loft_x[loft_->unit - 1], instance_->loft_y[loft_->floor - 1], 30.0, 20.0);
-		emit updatePos(loft_->unit, loft_->floor);
+		//instance_->lift_labels_[lift_->unit-1]->setGeometry(instance_->lift_x[lift_->unit - 1], instance_->lift_y[lift_->floor - 1], 30.0, 20.0);
+		emit updatePos(lift_->unit, lift_->floor);
 		msleep(300);
 	}
 }
 
-void LoftThread::DoorProcess()
+void LiftThread::DoorProcess()
 {
-	emit openDoor(loft_->floor, status % 2 == 0);
+	emit openDoor(lift_->floor, status % 2 == 0);
 	mayOpen_ = true;
-	int value = dispatcher::bars_[loft_->unit - 1]->value();
+	int value = dispatcher::bars_[lift_->unit - 1]->value();
 opendoor:
 	while (value >= 0)
 	{
-		emit barUpdate(loft_->unit, --value);
+		emit barUpdate(lift_->unit, --value);
 		msleep(10);
 	}
 	sleep(2);
@@ -178,7 +178,7 @@ opendoor:
 		if (stayOpen)
 			goto opendoor;
 		else
-			emit barUpdate(loft_->unit, ++value);
+			emit barUpdate(lift_->unit, ++value);
 		msleep(10);
 	}
 	for (int i = 0; i != 20; ++i)

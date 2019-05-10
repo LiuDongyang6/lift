@@ -1,7 +1,8 @@
 #include "dispatcher.h"
 #include"LabelButton.h"
-#include"LoftThread.h"
+#include"LiftThread.h"
 #include"qprogressbar.h"
+#include"qlcdnumber.h"
 bool dispatcher::inited = false;
 dispatcher* dispatcher::instance_ = NULL;
 dispatcher* dispatcher::getInstance()
@@ -27,12 +28,12 @@ void dispatcher::new_request(bool isUp,int floor,int unit)
 	int assigned = NearestIdle(floor);
 	if (assigned != -1)
 	{
-		loft_threads_[assigned - 1]->mutex.lock();
+		lift_threads_[assigned - 1]->mutex.lock();
 		idle[assigned - 1] = false;
-		loft_threads_[assigned - 1]->loft_->target = floor;
-		loft_threads_[assigned - 1]->loft_->picking = true;
-		loft_threads_[assigned - 1]->status = isUp ? 0 : 1;
-		loft_threads_[assigned - 1]->mutex.unlock();
+		lift_threads_[assigned - 1]->lift_->target = floor;
+		lift_threads_[assigned - 1]->lift_->picking = true;
+		lift_threads_[assigned - 1]->status = isUp ? 0 : 1;
+		lift_threads_[assigned - 1]->mutex.unlock();
 	}
 	else
 	{
@@ -50,10 +51,10 @@ int dispatcher::NearestIdle(int floor)
 	{
 		if (!idle[i])
 			continue;
-		if (std::abs(loft_threads_[i]->loft_->floor - floor) < dis)
+		if (std::abs(lift_threads_[i]->lift_->floor - floor) < dis)
 		{
 			nearest = i + 1;
-			dis = std::abs(loft_threads_[i]->loft_->floor - floor);
+			dis = std::abs(lift_threads_[i]->lift_->floor - floor);
 		}
 	}
 	return nearest;
@@ -82,16 +83,17 @@ void dispatcher::init()
 	for (int i = 0; i != 5; ++i)
 	{
 		idle[i] = true;
-		connect((QObject*)loft_threads_[i], SIGNAL(updatePos(int, int)), this, SLOT(updatePos(int, int)));
-		connect((QObject*)loft_threads_[i], SIGNAL(openDoor(int, bool)), this, SLOT(openDoor(int, bool)));
-		connect((QObject*)loft_threads_[i], SIGNAL(cancelInner(int, int)), this, SLOT(cancelInner(int, int)));
-		connect((QObject*)loft_threads_[i], SIGNAL(barUpdate(int, int)), this, SLOT(barUpdate(int, int)));
-		loft_threads_[i]->start();
+		connect((QObject*)lift_threads_[i], SIGNAL(updatePos(int, int)), this, SLOT(updatePos(int, int)));
+		connect((QObject*)lift_threads_[i], SIGNAL(openDoor(int, bool)), this, SLOT(openDoor(int, bool)));
+		connect((QObject*)lift_threads_[i], SIGNAL(cancelInner(int, int)), this, SLOT(cancelInner(int, int)));
+		connect((QObject*)lift_threads_[i], SIGNAL(barUpdate(int, int)), this, SLOT(barUpdate(int, int)));
+		lift_threads_[i]->start();
 	}
 }
 void dispatcher::updatePos(int unit, int floor)
 {
-	bars_[unit - 1]->setGeometry(loft_x[unit - 1], loft_y[floor - 1], 150.0, 20.0);
+	bars_[unit - 1]->setGeometry(lift_x[unit - 1], lift_y[floor - 1], 120.0, 20.0);
+	indicators_[unit - 1]->display(floor);
 }
 void dispatcher::openDoor(int floor, bool isUp)
 {

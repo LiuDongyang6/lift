@@ -1,18 +1,18 @@
 #ifndef LOFT_H
 #define LOFT_H
 #include"qobject.h"
-class loft:public QObject
+class lift:public QObject
 {
     Q_OBJECT
 public:
-	loft(int Unit) :unit(Unit) {};
+	lift(int Unit) :unit(Unit) {};
     int floor = 1;
 	int unit;
 	bool clicked[20] = { 0 };
-    //return true and set clicked[floor-1] to false if given floor is clicked inside the loft
+    //return true and set clicked[floor-1] to false if given floor is clicked inside the lift
     bool stopOrNot(int floor);
 	bool noInnerClick(int low = 0,int high = 20);
-	//if the loft is on the way to pick someone
+	//if the lift is on the way to pick someone
 	bool picking = false;
 	int target;
 private slots:
