@@ -16,18 +16,25 @@ void LiftThread::run()
 			{
 				if (lift_->floor == lift_->target)
 				{
+					emit updateArrow(lift_->unit, status);
 					//door open
 					DoorProcess();
 					//等待直到门关
 					lift_->picking = false;
 					status += 2;
 				}
+				else if (lift_->stopOrNot(lift_->floor))
+				{
+					DoorProcess(false);
+				}
 				else if (lift_->floor > lift_->target)
 				{
+					emit updateArrow(lift_->unit, 1);
 					lift_->floor--;
 				}
 				else if (lift_->floor < lift_->target)
 				{
+					emit updateArrow(lift_->unit, 0);
 					lift_->floor++;
 				}
 			}
@@ -55,7 +62,6 @@ void LiftThread::run()
 					if (lift_->stopOrNot(lift_->floor))
 					{
 						b = true;
-						emit cancelInner(lift_->unit, lift_->floor);
 					}
 					if (b)
 					{
@@ -119,6 +125,7 @@ void LiftThread::run()
 				default:
 					break;
 				}
+				emit updateArrow(lift_->unit, status == -1 ? -1 : status % 2);
 			}
 		}
 		//电梯空闲
@@ -161,9 +168,14 @@ void LiftThread::run()
 	}
 }
 
-void LiftThread::DoorProcess()
+void LiftThread::DoorProcess(bool emitOut)
 {
-	emit openDoor(lift_->floor, status % 2 == 0);
+	emit cancelInner(lift_->unit, lift_->floor);
+	lift_->clicked[lift_->floor] = false;
+	if (emitOut)
+	{
+		emit openDoor(lift_->floor, status % 2 == 0);
+	}
 	mayOpen_ = true;
 	int value = dispatcher::bars_[lift_->unit - 1]->value();
 opendoor:
@@ -187,4 +199,7 @@ opendoor:
 			goto opendoor;
 		msleep(10);
 	}
+	//再来一次，避免开门中又有人按本楼层
+	emit cancelInner(lift_->unit, lift_->floor);
+	lift_->clicked[lift_->floor] = false;
 }

@@ -1,10 +1,6 @@
 #include "lift.h"
-
-void lift::new_click(int floor)
-{
-    clicked[floor-1] = true;
-}
-
+#include"dispatcher.h"
+#include"LabelButton.h"
 bool lift::noInnerClick(int low,int high)
 {
 	bool b = true;
@@ -22,9 +18,16 @@ bool lift::stopOrNot(int floor)
 {
     if(clicked[floor])
     {
-        clicked[floor] = false;
         return true;
     }
     else
         return false;
+}
+void lift::alerted()
+{
+	for (int i = 0; i != dispatcher::LBs[unit - 1].size(); ++i)
+	{
+		dispatcher::LBs[unit - 1][i]->in_->button_->setChecked(true);
+		clicked[i] = true;
+	}
 }

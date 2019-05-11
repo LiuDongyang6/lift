@@ -184,8 +184,8 @@
   <ItemGroup>
     <ClCompile Include="LabelButton.cpp" />
     <ClCompile Include="dispatcher.cpp" />
-    <ClCompile Include="loft.cpp" />
-    <ClCompile Include="LoftThread.cpp" />
+    <ClCompile Include="lift.cpp" />
+    <ClCompile Include="LiftThread.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="mainwindow.cpp" />
   </ItemGroup>
